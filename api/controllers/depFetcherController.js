@@ -1,4 +1,4 @@
-'use strict';
+
 var https = require('https');
 var events = require('events');
 var semver = require('semver');
@@ -98,10 +98,10 @@ function fetcher(req, name, ver, res){
 
   // Go to API call only if the package is not cached yet
   if (ver === LATEST || !packageMapCache[key]) {
-    logger.log("Getting " + name + " v" + ver + "from the registry");
+    logger.log('Getting ' + name + ' v' + ver + 'from the registry');
     getFromRep(req, name, ver, res);
   } else {
-    logger.log("Getting " + name + " v" + ver + "from the cache");
+    logger.log('Getting ' + name + ' v' + ver + 'from the cache');
     eventEmitter.emit('depCache', req, name, ver, res);
   }
 }

@@ -1,4 +1,4 @@
-'use strict';
+
 var express = require('express');
 var session = require('express-session');
 var bodyParser = require('body-parser');
@@ -18,7 +18,7 @@ var server = app.listen(port, function() {
 });
 
 server.on('close', function() {
-  console.log('Closing')
+  console.log('Closing');
 });
 
 module.exports = server;
