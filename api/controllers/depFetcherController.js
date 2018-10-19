@@ -2,6 +2,7 @@
 var https = require('https');
 var events = require('events');
 var semver = require('semver');
+var logger = require('../logger');
 
 var eventEmitter = new events.EventEmitter();
 // Package map will be mapping of the package (name_version) to the json
@@ -48,6 +49,7 @@ function getFromRep(req, name, ver, res){
   }).on('error', function(err) {
     console.log('Error: ' + err.message);
     res.send(err);
+    res.session.endSent = true;
   });
 }
 
@@ -69,7 +71,7 @@ var fetcherHandler = function fHandler(req, name, version, res) {
       session.isFirst = false;
     res.write(JSON.stringify(obj));
 
-    // Increase the queue count by the number of sons
+    // Increase the queue count by the number of dependencies
     // And go over the dependencies and fetch their dep tree
     session.queueCount += Object.keys(deps).length;
     for (var elem in deps){
@@ -80,9 +82,9 @@ var fetcherHandler = function fHandler(req, name, version, res) {
     // Finished treating the key, decrease the queue count
     session.queueCount--;
 
-    // Finalize the response. Check for headersSent to prevent double end()
-    // which might happen if one of the packages' queries produced an error
-    if (session.queueCount === 0 && !res.headersSent) {
+    // Finalize the response.
+    // If one of the packages' queries produced an error - do not send end
+    if (session.queueCount === 0 && !session.endSent) {
       res.end(']');
     }
   }
@@ -96,8 +98,10 @@ function fetcher(req, name, ver, res){
 
   // Go to API call only if the package is not cached yet
   if (ver === LATEST || !packageMapCache[key]) {
+    logger.log("Getting " + name + " v" + ver + "from the registry");
     getFromRep(req, name, ver, res);
   } else {
+    logger.log("Getting " + name + " v" + ver + "from the cache");
     eventEmitter.emit('depCache', req, name, ver, res);
   }
 }
@@ -112,7 +116,9 @@ exports.fetchPackage = function(req, res) {
   var session = req.session;
   session.queueCount = 1;
   session.isFirst = true;
+  session.endSent = false;
 
+  res.setHeader('Content-Type', 'application/json');
   res.write('[');
 
   fetcher(req, req.params.package, ver, res);
@@ -120,4 +126,8 @@ exports.fetchPackage = function(req, res) {
 
 exports.emptyGreet = function(req, res) {
   res.json('Welcome to Package Dependencies Fetcher');
+};
+
+exports.badRouteGreet = function(req, res) {
+  res.status(404).send(JSON.stringify({}));
 };

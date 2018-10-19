@@ -13,6 +13,12 @@ app.use(session({secret: 'npm_secret', resave: true, saveUninitialized: true}));
 var routes = require('./api/routes/depFetcherRoutes'); // importing route
 routes(app); // register the route
 
-app.listen(port, function() {
+var server = app.listen(port, function() {
   console.log('We are live on ' + port);
 });
+
+server.on('close', function() {
+  console.log('Closing')
+});
+
+module.exports = server;

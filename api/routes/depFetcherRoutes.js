@@ -8,4 +8,7 @@ module.exports = function(app) {
 
   app.route('/fetch/:package&:version')
     .get(depFetcher.fetchPackage);
+
+  app.route('*')
+    .get(depFetcher.badRouteGreet);
 };
