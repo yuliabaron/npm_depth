@@ -15,4 +15,5 @@ JSON presenting dependencies tree, where properties are packages and values are 
 
 ##### Example:
 *Input*: http://localhost:8000/fetch/async&2.0.1
+
 *Output*: [{"async:2.0.1":{"lodash":"^4.8.0"}},{"lodash:4.8.0":{}}]
