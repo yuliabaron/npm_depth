@@ -27,3 +27,4 @@ JSON presenting dependencies tree, where properties are packages and values are 
 - Cache ttl-based invalidation: instead of keeping elements in cache forever, attach a ttl to them (say of one day). This is in order to renew the entry from time to time in order to get updates (on the same version) from the repository
 - Limit cache size: introduce two limits, lower and upper. Once lower is reached start throwing old cache elements. Once upper is reached - throw a console error
 - Improve "latest" handling: instead of replacing latest with a real version and caching it, store latest as latest with a short ttl (say, coulpe of hours). On ttl expiration the version should be replaced with a real version and stored with a "normal" ttl. Thus, "latest" will be retrieved again with the next request
+- Handle NPM registry reply timeout
