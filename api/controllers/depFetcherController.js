@@ -1,8 +1,6 @@
-
 var https = require('https');
 var events = require('events');
 var semver = require('semver');
-var logger = require('../logger');
 
 var eventEmitter = new events.EventEmitter();
 // Package map will be mapping of the package (name_version) to the json
@@ -98,10 +96,8 @@ function fetcher(req, name, ver, res){
 
   // Go to API call only if the package is not cached yet
   if (ver === LATEST || !packageMapCache[key]) {
-    logger.log('Getting ' + name + ' v' + ver + 'from the registry');
     getFromRep(req, name, ver, res);
   } else {
-    logger.log('Getting ' + name + ' v' + ver + 'from the cache');
     eventEmitter.emit('depCache', req, name, ver, res);
   }
 }
@@ -131,3 +127,6 @@ exports.emptyGreet = function(req, res) {
 exports.badRouteGreet = function(req, res) {
   res.status(404).send(JSON.stringify({}));
 };
+
+// export getter for testing purposes
+exports.getPackageFromNPMRepository = getFromRep;

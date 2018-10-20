@@ -1,6 +1,4 @@
-
 var request = require('supertest');
-// var expect = require('chai').expect;
 
 describe('Check server routes', function() {
   var server;

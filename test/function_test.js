@@ -1,23 +1,19 @@
-/* eslint-disable no-unused-expressions */
 var expect = require('chai').expect;
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var should = chai.should();
+var sinon = require('sinon');
+var controller = require('../api/controllers/depFetcherController');
 
 chai.use(chaiHttp);
-// var sinon = require('mocha-sinon');
 
 describe('Functionality testing', function() {
   var server;
-  // var logStub = {
-  //  log: sinon.spy(),
-  // };
-
-  // var srvLog = proxyquire('../server', {
-  // 'logger': logStub
-  // });
+  var getRepStub;
 
   before(function() {
+    // Start from clean server
+    delete require.cache[require.resolve('../server')];
     server = require('../server');
   });
 
@@ -38,35 +34,65 @@ describe('Functionality testing', function() {
     chai.request(server)
       .get('/fetch/mongodb-core&3.1.7')
       .end(function(err, res){
-        res.should.have.status(200);
-        res.should.be.json;
-        res.body.should.be.a('array');
-        if (Object.keys(res.body).length !== 7)
-          throw new Error('Expected 7 elements in the response, but obtained ' +
-            Object.keys(res.body).length);
+        if (err) {
+          console.log(err.stack);
+        } else {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('array');
+          if (Object.keys(res.body).length !== 7)
+            throw new Error('Expected 7 elements in the response, but ' +
+              'obtained ' + Object.keys(res.body).length);
+        }
         done();
       });
   });
 
   it('Verify cache use', function(done) {
     console.log('Test2 - Verify cache use');
+
+    // Stub the http request to repository
+    getRepStub = sinon.stub(controller, 'getPackageFromNPMRepository')
+      .returns();
+
     chai.request(server)
-      .get('/fetch/require_optional&1.0.1')
+      .get('/fetch/mongodb-core&3.1.7')
       .end(function(err, res){
-        res.should.have.status(200);
+        if (err) {
+          console.log(err.stack);
+        } else {
+          res.should.have.status(200);
+          res.should.be.json;
+          res.body.should.be.a('array');
+          if (Object.keys(res.body).length !== 7) {
+            throw new Error('Expected 7 elements in the response, but ' +
+              'obtained ' + Object.keys(res.body).length);
+          }
+          expect(!getRepStub.called);
+        }
         done();
       });
-    // TODO - verify cache is used
+    getRepStub.restore();
   });
 
   it('Check \'latest\' functionality', function(done) {
     console.log('Test3 - Check \'latest\' functionality');
-    // TODO - confirm query is issued for the second time as well
+
+    // Stub the http request to repository
+    getRepStub = sinon.stub(controller, 'getPackageFromNPMRepository')
+      .returns();
+
     chai.request(server)
       .get('/fetch/mongodb-core&latest')
       .end(function(err, res){
-        res.should.have.status(200);
+        if (err) {
+          console.log(err.stack);
+        } else {
+          res.should.have.status(200);
+          expect(getRepStub.called);
+        }
         done();
       });
+    getRepStub.restore();
   });
 });
