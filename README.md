@@ -14,7 +14,11 @@ By default port is set to 8000. Can be customized by setting environment variabl
 
 #### Dev running:
 npm run dev - to run the server under nodemon
-npm run test - to run eslint, jshint and unit-testing
+
+npm run test - to run eslint, jshint and unit-testing (with mocha and chai)
+
+#### CI environment:
+- Circle CI
 
 #### Input:
 http://\<IP\>:\<port\>/fetch/\<package\>&\<version\>
